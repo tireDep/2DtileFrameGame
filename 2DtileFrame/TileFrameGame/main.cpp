@@ -10,7 +10,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// �
 	switch (msg)	// msg가 곧 이벤트
 	{
 	case WM_LBUTTONDOWN:	// 마우스 왼쪽 버튼이 눌림
-		MessageBox(0, "Hello World", "Hello", MB_OK);
+		MessageBox(0, "Hello World", "Hello", MB_OK);	// 0 : 일반적인 창에 영향을 받지 않음 => WindowOS에 직접 관리를 받음! / 창을 넣을 경우에는 창에 따라 바뀜
 		return 0;
 		break;
 	}
@@ -57,6 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	// hWnd란 이름을 가진 윈도우를 보여주고 업데이트 해줌
 
 	// 윈도우가 꺼지지 않고 유지되도록 처리
+	// 담주에 수정시작
 	MSG msg;
 	while (-1 != GetMessage(&msg, 0, 0, 0))	// 발생된 메시지가 있으면
 	{
