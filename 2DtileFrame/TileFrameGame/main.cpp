@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include "GameTimer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// 윈도우 프로시저 함수 : 윈도우로부터 받은 이벤트를 처리하는 함수(내가 처리함)
 {
@@ -56,22 +57,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	// 1.
 	ShowWindow(hWnd, nCmdShow);	// hWnd : 하나의 윈도우를 가리키는 핸들(ID)
 	UpdateWindow(hWnd);
+	float fps = 60.0f;
+	float frameInterval = 1.0f / fps;	// frameInterval로 frame 조정
+	float frameTime = 0.0f;
+
+	GameTimer gameTimer;	// class
+	gameTimer.Init();
 	// hWnd란 이름을 가진 윈도우를 보여주고 업데이트 해줌
-
-	// 윈도우가 꺼지지 않고 유지되도록 처리
-	/*MSG msg;
-	while (-1 != GetMessage(&msg, 0, 0, 0))	// 발생된 메시지가 있으면
-	{
-		TranslateMessage(&msg);	// 키보드 변환 수행
-		DispatchMessage(&msg);	// 메시지 배분을 요청함
-	}
-	*/
-
 	// 게임의 경우 - msg가 있으면 있는대로, 없으면 없는 대로 처리되어야 함
 	// 게임에 맞게 개조된 부분
 	MSG msg = { 0 };
-	// 윈도우성능 중 최대로 실행
-	while (WM_QUIT != msg.message)	// app 종료 != destroy
+	while (WM_QUIT != msg.message)	// app 종료 != destroy -> 윈도우성능 중 최대로 실행
 	{
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) == TRUE)	// window는 window msg 무시x -> 최우선 순위!
 		{
@@ -87,8 +83,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		{
 			// 이론상으로는 들어갈 수 없는데 그게 1초에 만번 연타
 			// 정수로 할 수도 있음 -> 틱 사용
-			float frameTime = 0;
-			float frameInterval = 1.0f / 60.0f;	// frameInterval로 frame 조정
+			
+			gameTimer.Update();
+			float deltaTime = gameTimer.GetDeltaTimer();	// deltaTime : 이전 프레임에서 지금까지 흐른 시간, 이전 윈도우에서부터 지금까지 흐른 시간
+			frameTime += deltaTime;
+
 			if (frameInterval <= frameTime)	// 프레임 시간 <= 흐른 시간 일 경우 Update
 			{
 				/*
