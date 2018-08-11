@@ -96,6 +96,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				- 전체 중 60fps로 제한하는 것 => 게임 while문과 상관 x
 				*/
 				frameTime = 0.0f;
+				OutputDebugString("Update\n");
 			}
 		}
 	}
