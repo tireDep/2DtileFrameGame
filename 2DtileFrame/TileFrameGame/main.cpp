@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <d3d9.h>
 #include "GameTimer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// 윈도우 프로시저 함수 : 윈도우로부터 받은 이벤트를 처리하는 함수(내가 처리함)
@@ -57,6 +58,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	// 1.
 	ShowWindow(hWnd, nCmdShow);	// hWnd : 하나의 윈도우를 가리키는 핸들(ID)
 	UpdateWindow(hWnd);
+
+	// DirectX - 누군가(DirectX)에게 하드웨어에 직접 접근 할 수 있는 device를(dxDevice) 생성해서 달라고 요청
+	LPDIRECT3D9 direct3D;	// 그래픽 담당 DirectX
+	direct3D = Direct3DCreate9(D3D_SDK_VERSION);	// 윈도우에 달라고 요청하는 것
+	
+	if (direct3D == NULL)	// 생성 x시 종료
+		return 0;
+
+	// device를 생성하기 전, device를 통해서 화면에 어떻게 출력할 지 결정
+	D3DPRESENT_PARAMETERS d3dpp;
+	ZeroMemory(&d3dpp, sizeof(d3dpp));	// 변수를 0으로 초기화
+
+	d3dpp.BackBufferWidth = 1280;	// 화면해상도
+	d3dpp.BackBufferHeight = 768;	// 화면해상도
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;		
+	// 화면에 어떤 색상bit로 표현할 지(Unknown : 윈도우 설정에 따라서 => 윈도우 모드일경우 이거 설정 / 원하는 색상넣으려면 전체화면 해야함) 
+	d3dpp.BackBufferCount = 1;	// 더블 버퍼링 갯수
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.hDeviceWindow = hWnd;
+	d3dpp.Windowed = true;	// 윈도우 모드
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	// device 얻어올 준비 완료
+
+	// device 생성
+	LPDIRECT3DDEVICE9 dxDevice;	// LP : 포인터
+	HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
+	// D3DADAPTER_DEFAULT, D3DCREATE_HARDWARE_VERTEXPROCESSING => GPU의 도움을 받겠다는 것!
+
+
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;	// frameInterval로 frame 조정
 	float frameTime = 0.0f;
@@ -96,7 +126,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				- 전체 중 60fps로 제한하는 것 => 게임 while문과 상관 x
 				*/
 				frameTime = 0.0f;
-				OutputDebugString("Update\n");
+				
+				// OutputDebugString("Update\n");
+				
+				// 매 프레임마다 화면에 색을 채움 
+				// dxDevice : 컴 객체
+				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(254, 100, 100), 0.0f, 0);
+
+				// 채운 색을 모니터로 출력함
+				dxDevice->Present(NULL, NULL, NULL, NULL);
 			}
 		}
 	}
