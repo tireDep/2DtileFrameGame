@@ -27,6 +27,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// �
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
 // 현재 응용 프로그램의 메인 핸들, 안쓰임, 실행하는데 쓰이는 명령줄 도는 인수, 응용프로그램 표시 방식(최소/최대화 해서 보여줄거냐 등)
 {
+	// ! 나중에 수정 ! - 전체 해상도
+	int width = 1024;
+	int height = 768;
+	bool isWindow = false;	
+	/*
+	과제 :
+	- true 일 경우, window 창
+	- false로 설정하고 풀스크린 모드 설정하기
+	*/
+
 	// 3. 윈도우 스타일을 만들고 등록함
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;	// 창의 스타일 지정(화면 크기를 바꿀때마다 글씨가 보이고 안보이고를 갱신하는 것)
@@ -48,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		return 0;
 
 	// 2.
-	HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768, 0, 0, hInstance, 0);	// 창 핸들(ID) 발급
+	HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,width,height, 0, 0, hInstance, 0);	// 창 핸들(ID) 발급
 	// 사용할 윈도우 스타일 이름, OS에 등록되어 있음, 최상단 제목, 윈도우 스타일(overlappedwindow 이거가 가장 표준), 윈도우가 찍힐 x, y 좌표(시작위치 -> 알아서 지정해줌),
 	// 해상도, 너비/높이, [부모 창의 핸들, 메뉴 핸들] => 이 두개는 사용안함(0으로 표시), OS와 윈도우 연결 -> OS에서 윈도우를 관리할 수 있음(윈도우에서 발급받은 ID를 사용함) 가장 중요!!, 사용하지 않음
 
@@ -59,6 +69,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	ShowWindow(hWnd, nCmdShow);	// hWnd : 하나의 윈도우를 가리키는 핸들(ID)
 	UpdateWindow(hWnd);
 
+	// 윈도우 모드일 때 실제 게임 영역 확보
+	if (isWindow == true)
+	{
+		RECT clientRect;
+
+		GetClientRect(hWnd, &clientRect);	// 실제 윈도우 크기 가져옴(제목줄 제외한 크기)
+		MoveWindow(hWnd, 0, 0, width + (width - clientRect.right), height + (height - clientRect.bottom), TRUE);
+
+		/*
+		ex) px가 100이고, 제목이 20일 경우 -> 80만 출력됨 ==> 120으로 px 설정하면 100을 출력할 수 있음
+		100+(100-80) = 120 이런식으로
+		*/
+	}
+
 	// DirectX - 누군가(DirectX)에게 하드웨어에 직접 접근 할 수 있는 device를(dxDevice) 생성해서 달라고 요청
 	LPDIRECT3D9 direct3D;	// 그래픽 담당 DirectX
 	direct3D = Direct3DCreate9(D3D_SDK_VERSION);	// 윈도우에 달라고 요청하는 것
@@ -67,24 +91,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		return 0;
 
 	// device를 생성하기 전, device를 통해서 화면에 어떻게 출력할 지 결정
-	D3DPRESENT_PARAMETERS d3dpp;
+	D3DPRESENT_PARAMETERS d3dpp;	
+	// device 참고용(여기서 해상도 바꾼다고 해서 바뀌지는 않음->허락 x), 이거만 가지고는 할 수 있는 것이 많이 없음
+	// backbuffer 해상도가 윈도우 창보다 클 경우, 그대로 가져다 찍을 수도 / 축소해서 찍을 수도 있음(업/다운 스케일링)
 	ZeroMemory(&d3dpp, sizeof(d3dpp));	// 변수를 0으로 초기화
 
-	d3dpp.BackBufferWidth = 1280;	// 화면해상도
-	d3dpp.BackBufferHeight = 768;	// 화면해상도
+	d3dpp.BackBufferWidth = width;	// 화면해상도
+	d3dpp.BackBufferHeight = height;	// 화면해상도
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;		
 	// 화면에 어떤 색상bit로 표현할 지(Unknown : 윈도우 설정에 따라서 => 윈도우 모드일경우 이거 설정 / 원하는 색상넣으려면 전체화면 해야함) 
-	d3dpp.BackBufferCount = 1;	// 더블 버퍼링 갯수
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferCount = 1;	// 더블 버퍼링 갯수 -> 뒤에 안보이는 가상 모니터 수 ==> 총 출력창 2개로 생각하면 될 듯(보이는거, 안보이는거)
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	// 화면 바꿀때
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.Windowed = true;	// 윈도우 모드
+	d3dpp.Windowed = isWindow;	// 윈도우 모드
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	// device 얻어올 준비 완료
 
 	// device 생성
 	LPDIRECT3DDEVICE9 dxDevice;	// LP : 포인터
 	HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
-	// D3DADAPTER_DEFAULT, D3DCREATE_HARDWARE_VERTEXPROCESSING => GPU의 도움을 받겠다는 것!
+	/* 
+	! 설명 !
+	생성 실패 유무 판별 = 생성
+	 HRESULT : DirectX에서 사용하는 반환형, 성공 유무에 따라서 반환이 다름(Successes(0), Failed(1)) <-> bool과 반대임!
+	 */
+	 // D3DADAPTER_DEFAULT, D3DCREATE_HARDWARE_VERTEXPROCESSING => GPU의 도움을 받겠다는 것!
+
+	if (FAILED(hr))	// 실패할 경우, 종료 / success도 존재함!
+		return 0;
 
 
 	float fps = 60.0f;
@@ -131,7 +165,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				
 				// 매 프레임마다 화면에 색을 채움 
 				// dxDevice : 컴 객체
-				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(254, 100, 100), 0.0f, 0);
+				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 100, 100), 0.0f, 0);
 
 				// 채운 색을 모니터로 출력함
 				dxDevice->Present(NULL, NULL, NULL, NULL);
