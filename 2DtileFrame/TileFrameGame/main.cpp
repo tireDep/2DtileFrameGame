@@ -58,7 +58,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		return 0;
 
 	// 2.
-	HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,width,height, 0, 0, hInstance, 0);	// 창 핸들(ID) 발급
+	HWND hWnd = CreateWindow(TEXT("2DTileFrameWnd"), TEXT("2DTileFrameWnd"), WS_EX_TOPMOST | WS_POPUP, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, hInstance, 0);
+
+	//HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,width,height, 0, 0, hInstance, 0);	// 창 핸들(ID) 발급
 	// 사용할 윈도우 스타일 이름, OS에 등록되어 있음, 최상단 제목, 윈도우 스타일(overlappedwindow 이거가 가장 표준), 윈도우가 찍힐 x, y 좌표(시작위치 -> 알아서 지정해줌),
 	// 해상도, 너비/높이, [부모 창의 핸들, 메뉴 핸들] => 이 두개는 사용안함(0으로 표시), OS와 윈도우 연결 -> OS에서 윈도우를 관리할 수 있음(윈도우에서 발급받은 ID를 사용함) 가장 중요!!, 사용하지 않음
 
@@ -98,7 +100,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	d3dpp.BackBufferWidth = width;	// 화면해상도
 	d3dpp.BackBufferHeight = height;	// 화면해상도
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;		
+	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
 	// 화면에 어떤 색상bit로 표현할 지(Unknown : 윈도우 설정에 따라서 => 윈도우 모드일경우 이거 설정 / 원하는 색상넣으려면 전체화면 해야함) 
 	d3dpp.BackBufferCount = 1;	// 더블 버퍼링 갯수 -> 뒤에 안보이는 가상 모니터 수 ==> 총 출력창 2개로 생각하면 될 듯(보이는거, 안보이는거)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	// 화면 바꿀때
