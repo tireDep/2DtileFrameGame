@@ -2,22 +2,18 @@
 #include <d3d9.h>
 #include "GameTimer.h"
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// 윈도우 프로시저 함수 : 윈도우로부터 받은 이벤트를 처리하는 함수(내가 처리함)
+LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	// 이벤트를 받을 공간 하나만 생성함(아직까지는 윈도우가 다 처리해줌)
-	switch (msg)	// msg가 곧 이벤트
+	switch (msg)
 	{
-	case WM_LBUTTONDOWN:	// 마우스 왼쪽 버튼이 눌림
-		MessageBox(0, "Hello World", "Hello", MB_OK);	// 0 : 일반적인 창에 영향을 받지 않음 => WindowOS에 직접 관리를 받음! / 창을 넣을 경우에는 창에 따라 바뀜
+	case WM_LBUTTONDOWN:
+		MessageBox(0, "Hello World", "Hello", MB_OK);	
 		return 0;
-	case WM_KEYDOWN:	// 키 입력
-		if (VK_ESCAPE == wParam)	// 입력키가 esc
-		{
-			DestroyWindow(hWnd);	// 창 파괴 msg
-			// !주의! - PostQuitMessage(0); 작성 시 파괴 msg가 발급 x이므로 실행되지 않음
-		}
+	case WM_KEYDOWN:	
+		if (VK_ESCAPE == wParam)	
+			DestroyWindow(hWnd);	
 		break;
-	case WM_DESTROY:	// 파괴 msg
+	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	}
@@ -25,161 +21,98 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)	// �
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
-// 현재 응용 프로그램의 메인 핸들, 안쓰임, 실행하는데 쓰이는 명령줄 도는 인수, 응용프로그램 표시 방식(최소/최대화 해서 보여줄거냐 등)
 {
-	// ! 나중에 수정 ! - 전체 해상도
 	int width = 1024;
 	int height = 768;
-	bool isWindow = false;	
-	/*
-	과제 :
-	- true 일 경우, window 창
-	- false로 설정하고 풀스크린 모드 설정하기
-	*/
+	bool isWindow = true;
+	// 전체화면 과제 해결
+	// bool isWindow = false;
 
-	// 3. 윈도우 스타일을 만들고 등록함
 	WNDCLASS wc;
-	wc.style = CS_HREDRAW | CS_VREDRAW;	// 창의 스타일 지정(화면 크기를 바꿀때마다 글씨가 보이고 안보이고를 갱신하는 것)
-	wc.lpfnWndProc = WndProc;	// 윈도우 프로시저 함수 등록(처리 관련) 
-	// 함수포인터!(함수가 어디에 있는지만 알려줌)
-	// 형태가 약속되어 있기 때문에 작동이 가능함! 다른 형태일 경우 작동되지 않음!!(요거도 찾아봅시다)
-	wc.cbClsExtra = 0;	// 사용x(사장됨) / 안해줘도 되긴 하는데 명시적으로는 작성해줌
-	wc.cbWndExtra = 0;	// 사용x(사장됨) / 안해줘도 되긴 하는데 명시적으로는 작성해줌
-	wc.hInstance = hInstance;	// 윈도우와 OS 연결
-	wc.hIcon = LoadIcon(0, IDI_APPLICATION);	// 윈도우 실행할 때 어떤 아이콘 출력인지(가장 기본적인 아이콘)
-	wc.hCursor = LoadCursor(0, IDC_ARROW);// 윈도우 실행할 때 어떤 화살표 출력인지(가장 기본적인 화살표)
-	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);	// 배경화면(배경을 흰색으로 출력)
-	wc.lpszMenuName = 0;	// 메뉴 형식(사용x 이므로 0)
-	wc.lpszClassName = "2DTileFrameWnd";	// 이 윈도우 스타일의 이름
-	// 이 과정을 통해서 사용할 윈도우 스타일 하나 생성
+	wc.style = CS_HREDRAW | CS_VREDRAW;	
+	wc.lpfnWndProc = WndProc;
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = hInstance;
+	wc.hIcon = LoadIcon(0, IDI_APPLICATION);
+	wc.hCursor = LoadCursor(0, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	wc.lpszMenuName = 0;
+	wc.lpszClassName = "2DTileFrameWnd";
 
-	// 만든 윈도우 스타일 등록
-	if (RegisterClass(&wc) == FALSE)// 등록되지 않을 경우 // (!RegisterClass(&wc))
+	if (RegisterClass(&wc) == FALSE)
 		return 0;
 
-	// 2.
-	HWND hWnd = CreateWindow(TEXT("2DTileFrameWnd"), TEXT("2DTileFrameWnd"), WS_EX_TOPMOST | WS_POPUP, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, hInstance, 0);
+	HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, hInstance, 0);
+	// 전체화면 과제 해결
+	// HWND hWnd = CreateWindow(TEXT("2DTileFrameWnd"), TEXT("2DTileFrameWnd"), WS_EX_TOPMOST | WS_POPUP, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, hInstance, 0);
 
-	//HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,width,height, 0, 0, hInstance, 0);	// 창 핸들(ID) 발급
-	// 사용할 윈도우 스타일 이름, OS에 등록되어 있음, 최상단 제목, 윈도우 스타일(overlappedwindow 이거가 가장 표준), 윈도우가 찍힐 x, y 좌표(시작위치 -> 알아서 지정해줌),
-	// 해상도, 너비/높이, [부모 창의 핸들, 메뉴 핸들] => 이 두개는 사용안함(0으로 표시), OS와 윈도우 연결 -> OS에서 윈도우를 관리할 수 있음(윈도우에서 발급받은 ID를 사용함) 가장 중요!!, 사용하지 않음
-
-	if (NULL == hWnd)	// 정상적으로 실행이 안될 경우
+	if (NULL == hWnd)
 		return 0;
 
-	// 1.
-	ShowWindow(hWnd, nCmdShow);	// hWnd : 하나의 윈도우를 가리키는 핸들(ID)
+	ShowWindow(hWnd, nCmdShow);	
 	UpdateWindow(hWnd);
 
-	// 윈도우 모드일 때 실제 게임 영역 확보
 	if (isWindow == true)
 	{
 		RECT clientRect;
 
-		GetClientRect(hWnd, &clientRect);	// 실제 윈도우 크기 가져옴(제목줄 제외한 크기)
+		GetClientRect(hWnd, &clientRect);
 		MoveWindow(hWnd, 0, 0, width + (width - clientRect.right), height + (height - clientRect.bottom), TRUE);
-
-		/*
-		ex) px가 100이고, 제목이 20일 경우 -> 80만 출력됨 ==> 120으로 px 설정하면 100을 출력할 수 있음
-		100+(100-80) = 120 이런식으로
-		*/
 	}
 
-	// DirectX - 누군가(DirectX)에게 하드웨어에 직접 접근 할 수 있는 device를(dxDevice) 생성해서 달라고 요청
-	LPDIRECT3D9 direct3D;	// 그래픽 담당 DirectX
-	direct3D = Direct3DCreate9(D3D_SDK_VERSION);	// 윈도우에 달라고 요청하는 것
+	LPDIRECT3D9 direct3D;
+	direct3D = Direct3DCreate9(D3D_SDK_VERSION);
 	
-	if (direct3D == NULL)	// 생성 x시 종료
+	if (direct3D == NULL)
 		return 0;
 
-	// device를 생성하기 전, device를 통해서 화면에 어떻게 출력할 지 결정
 	D3DPRESENT_PARAMETERS d3dpp;	
-	// device 참고용(여기서 해상도 바꾼다고 해서 바뀌지는 않음->허락 x), 이거만 가지고는 할 수 있는 것이 많이 없음
-	// backbuffer 해상도가 윈도우 창보다 클 경우, 그대로 가져다 찍을 수도 / 축소해서 찍을 수도 있음(업/다운 스케일링)
-	ZeroMemory(&d3dpp, sizeof(d3dpp));	// 변수를 0으로 초기화
+	ZeroMemory(&d3dpp, sizeof(d3dpp));
 
-	d3dpp.BackBufferWidth = width;	// 화면해상도
-	d3dpp.BackBufferHeight = height;	// 화면해상도
+	d3dpp.BackBufferWidth = width;
+	d3dpp.BackBufferHeight = height;
 	d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
-	// 화면에 어떤 색상bit로 표현할 지(Unknown : 윈도우 설정에 따라서 => 윈도우 모드일경우 이거 설정 / 원하는 색상넣으려면 전체화면 해야함) 
-	d3dpp.BackBufferCount = 1;	// 더블 버퍼링 갯수 -> 뒤에 안보이는 가상 모니터 수 ==> 총 출력창 2개로 생각하면 될 듯(보이는거, 안보이는거)
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;	// 화면 바꿀때
+	d3dpp.BackBufferCount = 1;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.Windowed = isWindow;	// 윈도우 모드
+	d3dpp.Windowed = isWindow;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-	// device 얻어올 준비 완료
-
-	// device 생성
-	LPDIRECT3DDEVICE9 dxDevice;	// LP : 포인터
+	
+	LPDIRECT3DDEVICE9 dxDevice;
 	HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
-	/* 
-	! 설명 !
-	생성 실패 유무 판별 = 생성
-	 HRESULT : DirectX에서 사용하는 반환형, 성공 유무에 따라서 반환이 다름(Successes(0), Failed(1)) <-> bool과 반대임!
-	 */
-	 // D3DADAPTER_DEFAULT, D3DCREATE_HARDWARE_VERTEXPROCESSING => GPU의 도움을 받겠다는 것!
 
-	if (FAILED(hr))	// 실패할 경우, 종료 / success도 존재함!
+	if (FAILED(hr))
 		return 0;
 
 
 	float fps = 60.0f;
-	float frameInterval = 1.0f / fps;	// frameInterval로 frame 조정
+	float frameInterval = 1.0f / fps;
 	float frameTime = 0.0f;
 
-	GameTimer gameTimer;	// class
+	GameTimer gameTimer;
 	gameTimer.Init();
-	// hWnd란 이름을 가진 윈도우를 보여주고 업데이트 해줌
-	// 게임의 경우 - msg가 있으면 있는대로, 없으면 없는 대로 처리되어야 함
-	// 게임에 맞게 개조된 부분
 	MSG msg = { 0 };
-	while (WM_QUIT != msg.message)	// app 종료 != destroy -> 윈도우성능 중 최대로 실행
+	while (WM_QUIT != msg.message)
 	{
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) == TRUE)	// window는 window msg 무시x -> 최우선 순위!
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE) == TRUE)
 		{
-			/* 
-			! 차이점 !
-			GetMessage -> msg가 있을 경우에만 나옴 / 언제 나올지 모름 => 이벤트가 있을 경우에만 사용함
-			PeekMessage -> msg 유무에 상관 없이 나옴 / 한턴내에 처리됨 => 이벤트 상관 x로 사용함
-			*/
-			TranslateMessage(&msg);	// 키보드 변환 수행
-			DispatchMessage(&msg);	// 메시지 배분을 요청함
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 		else
 		{
-			// 이론상으로는 들어갈 수 없는데 그게 1초에 만번 연타
-			// 정수로 할 수도 있음 -> 틱 사용
-			
 			gameTimer.Update();
-			float deltaTime = gameTimer.GetDeltaTimer();	// deltaTime : 이전 프레임에서 지금까지 흐른 시간, 이전 윈도우에서부터 지금까지 흐른 시간
+			float deltaTime = gameTimer.GetDeltaTimer();
 			frameTime += deltaTime;
 
-			if (frameInterval <= frameTime)	// 프레임 시간 <= 흐른 시간 일 경우 Update
+			if (frameInterval <= frameTime)
 			{
-				/*
-				! todo !
-				- gameUpdate .60fps
-				- 전체 중 60fps로 제한하는 것 => 게임 while문과 상관 x
-				*/
 				frameTime = 0.0f;
-				
-				// OutputDebugString("Update\n");
-				
-				// 매 프레임마다 화면에 색을 채움 
-				// dxDevice : 컴 객체
 				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 100, 100), 0.0f, 0);
-
-				// 채운 색을 모니터로 출력함
 				dxDevice->Present(NULL, NULL, NULL, NULL);
 			}
 		}
 	}
-
 	return 0;
-
-	/* 순서
-	1. 윈도우를 띄우려고 함 -> 아이디가 없음
-    2. 아이디를 생성 -> 등록이 되어 있지 않음
-	3. 윈도우 스타일 만들고 등록
-	*/
 }
