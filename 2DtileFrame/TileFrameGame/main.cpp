@@ -1,6 +1,7 @@
 // Setting
+// fullscreen 모드일경우 윈도우 관련x이므로 창모드로 진행함
 #include <Windows.h>
-#include <d3d9.h>
+#include <d3dx9.h>
 #include "GameTimer.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -44,9 +45,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	DWORD style;
 	if (isWindow)	// 윈도우 모드일 경우 처음 창 요소 그대로 사용
-		style = WS_OVERLAPPEDWINDOW;
+		style = WS_OVERLAPPEDWINDOW;	// 겹치는 창을 만듦(기본설정인듯)
 	else // 풀스크린 모드인 경우, 윈도우에 부가적인 요소를 제거함
 		style = WS_EX_TOPMOST | WS_VISIBLE | WS_POPUP;	// 윈도우 구상 가장 기본적인 요소
+	// 이 창을 제외한 나머지 창을 nontopmost windows로 배치 | 처음 표시되는 창 생성 | 팝업창 생성(ws_chlid랑 사용 가능)
 	// 윈도우화면 성능과 관련됨, 다이렉트엑스랑 상관x
 	
 	HWND hWnd = CreateWindow("2DTileFrameWnd", "2D Tile Frame", style, CW_USEDEFAULT, CW_USEDEFAULT, width, height, 0, 0, hInstance, 0);
@@ -92,10 +94,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	
 	LPDIRECT3DDEVICE9 dxDevice;
 	HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
-	// lost device 관련 설정 해줘야함
+	// directX 중 lost device 관련 설정 해줘야함 -> 나중에 진행함
 
 	if (FAILED(hr))
 		return 0;
+
+	// sprite com 인터페이스 생성
+	// 설정 -> 링커 -> 입력 -> d3dx9d.lib(개발용) or d3dx9.lib(출시용) 추가, 
+	// d3d9 : 다이렉트 엑스 필수, d3dx9d : 기존 기술 확장개념
 
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -121,6 +127,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			{
 				frameTime = 0.0f;
 				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 100, 100), 0.0f, 0);
+				// 가독성
+				{	
+					// 특정 영역(scene)에 이미지 출력
+					dxDevice->BeginScene();	// 시작 / 필수!
+					{
+						// scene 작업 : 게임화면과 관련된 모든 작업 공간
+						// 반드시 beginscene ~ endscene 사이에 이루어져야함
+						spriteDX->Begin(0);	// 필수는 x
+						{
+							// 2D이미지 출력 공간
+						}
+						spriteDX->End();
+					}
+					dxDevice->EndScene();	// 끝 / 필수!
+				}
+
 				dxDevice->Present(NULL, NULL, NULL, NULL);
 			}
 		}
