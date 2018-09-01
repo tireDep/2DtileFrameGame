@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 {
 	int width = 1024;
 	int height = 768;
-	bool isWindow = false;
+	bool isWindow = true;
 
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;	
@@ -145,11 +145,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			return 0;
 
 		textureRect.left = 0;
-		//textureRect.right = textureRect.left + texInfo.Width;
-		textureRect.right = 50;
+		textureRect.right = textureRect.left + texInfo.Width;
+		//textureRect.right = 50;
 		textureRect.top = 0;
-		// textureRect.bottom = textureRect.top + texInfo.Height;
-		textureRect.bottom = 80;
+		textureRect.bottom = textureRect.top + texInfo.Height;
+		//textureRect.bottom = 80;
 		// 출력 영역 지정 -> 원본 이미지 전체 출력
 
 		textureColor = D3DCOLOR_ARGB(255, 255, 255, 255);	// 알파채널 작동, 원본 그대로 출력(흰색)
@@ -216,6 +216,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						else if (D3DERR_DEVICENOTRESET == hr)	// 망가진 상태 but 복구 가능한 상태 => 복구 진행함
 						{
 							// 기존에 만들어져 있던 것 reset
+							// 다른것은 이미 망가졌으므로 이거만 release, 다해도 상관없음
 							if (textureDX)
 							{
 								textureDX->Release();
