@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <d3dx9.h>
 #include "GameTimer.h"
+#include "Sprite.h"	
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -110,10 +111,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	// 이미지 로드
 	IDirect3DTexture9* textureDX;
 	RECT textureRect;
-	D3DCOLOR textureColor;	// 색상
-	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";	// 로드할 파일명, L붙여야 함(유니코드 사용)
-	// 속성 -> 문자집합 -> 유니코드 => ""앞에 L붙여줘야 함!
-	// 경로 쓸 경우 슬래시 주의..
+	D3DCOLOR textureColor;
+	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";
+
+	// Sprite 객체 생성
+	Sprite* testSprite = new Sprite();
+	testSprite->Init(fileName,dxDevice,spriteDX);
+
+	/*
+	// Sprite.cpp로 이동됨
 	D3DXIMAGE_INFO texInfo;	// 파일로부터 이미지의 너비와 높이를 얻음
 	{
 		hr = D3DXGetImageInfoFromFile(fileName, &texInfo);
@@ -124,36 +130,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
 			1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
 			&texInfo, NULL, &textureDX);
-			/*
-			pDevice - [in] IDirect3DDevice9 인터페이스의 포인터. 텍스처에 관련지을 수 있는 장치를 나타낸다.
-			pSrcFile - [in] 파일명을 지정하는 캐릭터 라인의 포인터. 컴파일러의 설정이 Unicode 를 요구하고 있는 경우, 데이터 타입 LPCTSTR 는 LPCWSTR 가 된다. 그 이외의 경우는, 이 캐릭터 라인의 데이터 타입은 LPCSTR 가 된다. 「주의」를 참조할것.
-			Width - [in] 폭 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
-			Height - [in] 높이 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
-			MipLevels - [in] 요구되는 밉레벨의 수. 이 값이 0 또는 D3DX_DEFAULT 의 경우는, 완전한 밉맵 체인이 생성 된다.
-			Usage - [in] 0, D3DUSAGE_RENDERTARGET, 또는 D3DUSAGE_DYNAMIC. 이 플래그를 D3DUSAGE_RENDERTARGET 로 설정 하면, 그 표면은 렌더링 타겟으로서 사용되는 것을 나타낸다. 리소스는,IDirect3DDevice9::SetRenderTarget 메서드의 pNewRenderTarget 파라미터에 건네줄 수가 있다. D3DUSAGE_RENDERTARGET 또는 D3DUSAGE_DYNAMIC 를 지정하는 경우,Pool 를 D3DPOOL_DEFAULT 로 설정해, 애플리케이션은 IDirect3D9::CheckDeviceFormat 를 호출해, 장치가 이 처리를 지원 하고 있는 것을 확인할 필요가 있다. D3DUSAGE_DYNAMIC 는, 표면을 동적으로 처리할 필요가 있는 것을 나타낸다. 동적 텍스처의 사용법의 더 자세한 정보는, 「동적 텍스처의 사용법」을 참조할것.
-			Format - D3DFORMAT 열거형의 멤버. 텍스처에 대해서 요구된 픽셀 포맷을 기술한다. 돌려받는 텍스처의 포맷은,Format 로 지정한 포맷과 다른 경우가 있다. 애플리케이션은, 돌려주어진 텍스처의 포맷을 확인할 필요가 있다. Format 의 값이 D3DFMT_UNKNOWN 의 경우, 포맷은 파일로부터 취득된다.
-			Pool - [in] D3DPOOL 열거형의 멤버. 텍스처의 배치처가 되는 메모리 클래스를 기술한다.
-			Filter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_TRIANGLE | D3DX_FILTER_DITHER 를 지정하는 것으로 동일하다.
-			MipFilter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_BOX 를 지정하는 것으로 동일하다.
-			ColorKey - [in] 투명이 되는 D3DCOLOR 의 값. 컬러 키를 무효로 하는 경우는 0 을 지정한다. 소스 이미지의 포맷과는 관계없이, 이것은 항상 32 비트의 ARGB 컬러이다. 알파가 의미가 있고, 보통은 컬러 키를 불투명하게 하는 경우는 FF 를 지정한다. 따라서, 불투명한 흑의 경우, 값은 0xFF000000 가 된다.
-			pSrcInfo - [in, out] 소스 이미지 파일내의 데이터의 기술을 저장 하는 D3DXIMAGE_INFO 구조체의 포인터, 또는 NULL.
-			pPalette - [out] 저장 하는 256 색팔레트를 나타내는 PALETTEENTRY 구조체의 포인터, 또는 NULL.
-			ppTexture - [out] 생성 된 큐브 텍스처 개체를 나타내는,IDirect3DTexture9 인터페이스의 포인터 주소.
-			*/
 
 		if (FAILED(hr))
 			return 0;
 
 		textureRect.left = 0;
 		textureRect.right = textureRect.left + texInfo.Width;
-		//textureRect.right = 50;
 		textureRect.top = 0;
 		textureRect.bottom = textureRect.top + texInfo.Height;
-		//textureRect.bottom = 80;
 		// 출력 영역 지정 -> 원본 이미지 전체 출력
 
 		textureColor = D3DCOLOR_ARGB(255, 255, 255, 255);	// 알파채널 작동, 원본 그대로 출력(흰색)
 	}
+	*/
 	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -185,17 +174,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 					{
 						// scene 작업 : 게임화면과 관련된 모든 작업 공간
 						// 반드시 beginscene ~ endscene 사이에 이루어져야함
-						spriteDX->Begin(D3DXSPRITE_ALPHABLEND);	// 필수는 x
+						spriteDX->Begin(D3DXSPRITE_ALPHABLEND);	
 						{
+							// Sprite Render
+							testSprite->Render();
+
+							/*
+							// 이동함!
 							// 알파채널 사용함!
 							// 2D이미지 출력 공간 -> Texture 1장 출력
 							spriteDX->Draw(textureDX, &textureRect, NULL, NULL, textureColor);
 							// 그릴 텍스처 정보가 들어있는 인터페이스, 원본 이미지에서 그릴 부분, NULL(일단은) ,NULL(일단은) , 스프라이트의 색상&알파채널
 							// 알파채널 : 특정색상(투명값) 제외 하는 것 ->  한 색상 사용x ==> 알파채널이라는 설정으로 배경제외(투명값이외의 다른 값 사용함 의미함)
-							/*	ex)
-							D3DFMT_R8G8B8	20	24-bit RGB pixel format with 8 bits per channel.
-							D3DFMT_A8R8G8B8	21	32-bit ARGB pixel format with alpha, using 8 bits per channel.
-							D3DFMT_X8R8G8B8	22	32-bit RGB pixel format, where 8 bits are reserved for each color.
 							*/
 						}
 						spriteDX->End();
@@ -217,11 +207,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						{
 							// 기존에 만들어져 있던 것 reset
 							// 다른것은 이미 망가졌으므로 이거만 release, 다해도 상관없음
+							testSprite->Release();
+
+							/*
 							if (textureDX)
 							{
 								textureDX->Release();
 								textureDX = NULL;
 							}
+							*/
 
 							// 새로 생성(복구)
 							direct3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -230,10 +224,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 								HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
 								if(SUCCEEDED(hr))
 									hr = D3DXCreateSprite(dxDevice, &spriteDX);
-								if(SUCCEEDED(hr))
-									hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
+								if (SUCCEEDED(hr))
+									testSprite->Reset();
+									/*hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
 										1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
-										&texInfo, NULL, &textureDX);
+										&texInfo, NULL, &textureDX);*/
 								// 디바이스&스프라이트&텍스처 인터페이스 재 생성
 							}
 						}
@@ -255,5 +250,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		direct3D->Release();
 		direct3D = NULL;
 	}
+	if (testSprite != NULL)
+		delete testSprite;
+
+	/*if (textureDX)
+	{
+	textureDX->Release();
+	textureDX = NULL;
+	}*/
+	// 원래 textureDX도 해제를 했었어야 함
+	// 수정되는 코드 -> 텍스처 해제는 스프라이트가 파괴될 때 이루어짐
+
 	return 0;
 }
