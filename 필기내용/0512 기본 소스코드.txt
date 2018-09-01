@@ -1,0 +1,45 @@
+// 기존 소스코드
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void PrintSelect(int select);
+void PrintText(const char* text);
+
+int main(void)
+{
+	// 유저의 입력을 받음
+	char ch = _getche();	// 키입력 문자 하나를 받아서 ch에 저장
+	int select = atoi(&ch);	// ch에 저장된 문자를 숫자로 변환
+
+	PrintSelect(select);
+		
+	return 0;
+}
+
+void PrintSelect(int select)
+{
+	// [문자열]을 여러개 모은 배열
+	char textList[100][256]
+	{
+		"안녕!",
+		"잘가!",
+	};
+
+	if (select < 2)
+	{
+		printf("\n");
+		PrintText(textList[select]);
+	}
+	else
+	{
+		PrintText("\n제대로 넣어");
+	}
+}
+
+void PrintText(const char* text)
+{
+	printf(text);
+	printf("\n");
+}

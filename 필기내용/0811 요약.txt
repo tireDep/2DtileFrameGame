@@ -1,0 +1,25 @@
+0811 요약
+Window Programing
+- App -> 창(window) / 여러 개 실행 가능 => multitasking
+- 2개 이상일 경우 os / window가 관리 => 믈어보고 허락할 경우에만 실행 가능
+==> 이벤트 주도 프로그래밍 -> 이벤트 발생 x이면 윈도우는 아무것도 허락하지 x
+- 메시지 처리
+- 초반에는 게임에 어울리지 x, DOS 사용 -> 게임에 한해서만 이벤트 X, 허락 X -> DirectX(대 전제 붕괴됨 : 한개만 실행 가능/나머지는 휴면상태 -> 게임이 뻗으면 다 뻗음, +) 쉐이더)
++) 창을 띄우는 거까지만 하면 됨
+
+수업내용
+- 작업관리자랑 1:1 대응은 아님(강종경우만)
+
+- frameInterval = 1sec
+if(frameInterval < 흐른 시간)
+update
+흐른시간 reset
+// 시간 = 0 -> 0.5 ->0.8 -> 1.0일 때 update 경우 => 1frame
+- frameInterval = 1/2 -> 2 frame
+
+Direct X
+- 윈도우 -> component => Direct X
+- 하드웨어 직접 접근
+- 어려운 계산 -> CPU / GPU 선택 가능
+- 업계표준x(openGL) but window표준
+-----------------------------------------------(중기 / DX 9)

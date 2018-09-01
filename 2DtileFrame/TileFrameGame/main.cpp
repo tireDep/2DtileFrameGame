@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 {
 	int width = 1024;
 	int height = 768;
-	bool isWindow = true;
+	bool isWindow = false;
 
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;	
@@ -96,8 +96,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
 	// directX 중 lost device(디바이스 유실) 관련 설정 해줘야함 -> alt + tab 이후 게임으로 돌아가지 않음, 전체화면일 경우에만 에러남!
 
-
-
 	if (FAILED(hr))
 		return 0;
 
@@ -113,50 +111,50 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	IDirect3DTexture9* textureDX;
 	RECT textureRect;
 	D3DCOLOR textureColor;	// 색상
+	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";	// 로드할 파일명, L붙여야 함(유니코드 사용)
+	// 속성 -> 문자집합 -> 유니코드 => ""앞에 L붙여줘야 함!
+	// 경로 쓸 경우 슬래시 주의..
+	D3DXIMAGE_INFO texInfo;	// 파일로부터 이미지의 너비와 높이를 얻음
 	{
-		LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";	// 로드할 파일명, L붙여야 함(유니코드 사용)
-		// 속성 -> 문자집합 -> 유니코드 => ""앞에 L붙여줘야 함!
-		// 경로 쓸 경우 슬래시 주의..
-		
-		// 파일로부터 이미지의 너비와 높이를 얻음
-		D3DXIMAGE_INFO texInfo;
 		hr = D3DXGetImageInfoFromFile(fileName, &texInfo);
 		if (FAILED(hr))
 			return 0;
-
+		
 		// 이미지 데이터 로드
-		hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height, 
-			1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255), 
+		hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
+			1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
 			&texInfo, NULL, &textureDX);
-		/*
-		pDevice - [in] IDirect3DDevice9 인터페이스의 포인터. 텍스처에 관련지을 수 있는 장치를 나타낸다.
-		pSrcFile - [in] 파일명을 지정하는 캐릭터 라인의 포인터. 컴파일러의 설정이 Unicode 를 요구하고 있는 경우, 데이터 타입 LPCTSTR 는 LPCWSTR 가 된다. 그 이외의 경우는, 이 캐릭터 라인의 데이터 타입은 LPCSTR 가 된다. 「주의」를 참조할것.
-		Width - [in] 폭 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
-		Height - [in] 높이 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
-		MipLevels - [in] 요구되는 밉레벨의 수. 이 값이 0 또는 D3DX_DEFAULT 의 경우는, 완전한 밉맵 체인이 생성 된다.
-		Usage - [in] 0, D3DUSAGE_RENDERTARGET, 또는 D3DUSAGE_DYNAMIC. 이 플래그를 D3DUSAGE_RENDERTARGET 로 설정 하면, 그 표면은 렌더링 타겟으로서 사용되는 것을 나타낸다. 리소스는,IDirect3DDevice9::SetRenderTarget 메서드의 pNewRenderTarget 파라미터에 건네줄 수가 있다. D3DUSAGE_RENDERTARGET 또는 D3DUSAGE_DYNAMIC 를 지정하는 경우,Pool 를 D3DPOOL_DEFAULT 로 설정해, 애플리케이션은 IDirect3D9::CheckDeviceFormat 를 호출해, 장치가 이 처리를 지원 하고 있는 것을 확인할 필요가 있다. D3DUSAGE_DYNAMIC 는, 표면을 동적으로 처리할 필요가 있는 것을 나타낸다. 동적 텍스처의 사용법의 더 자세한 정보는, 「동적 텍스처의 사용법」을 참조할것.
-		Format - D3DFORMAT 열거형의 멤버. 텍스처에 대해서 요구된 픽셀 포맷을 기술한다. 돌려받는 텍스처의 포맷은,Format 로 지정한 포맷과 다른 경우가 있다. 애플리케이션은, 돌려주어진 텍스처의 포맷을 확인할 필요가 있다. Format 의 값이 D3DFMT_UNKNOWN 의 경우, 포맷은 파일로부터 취득된다.
-		Pool - [in] D3DPOOL 열거형의 멤버. 텍스처의 배치처가 되는 메모리 클래스를 기술한다.
-		Filter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_TRIANGLE | D3DX_FILTER_DITHER 를 지정하는 것으로 동일하다.
-		MipFilter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_BOX 를 지정하는 것으로 동일하다.
-		ColorKey - [in] 투명이 되는 D3DCOLOR 의 값. 컬러 키를 무효로 하는 경우는 0 을 지정한다. 소스 이미지의 포맷과는 관계없이, 이것은 항상 32 비트의 ARGB 컬러이다. 알파가 의미가 있고, 보통은 컬러 키를 불투명하게 하는 경우는 FF 를 지정한다. 따라서, 불투명한 흑의 경우, 값은 0xFF000000 가 된다.
-		pSrcInfo - [in, out] 소스 이미지 파일내의 데이터의 기술을 저장 하는 D3DXIMAGE_INFO 구조체의 포인터, 또는 NULL.
-		pPalette - [out] 저장 하는 256 색팔레트를 나타내는 PALETTEENTRY 구조체의 포인터, 또는 NULL.
-		ppTexture - [out] 생성 된 큐브 텍스처 개체를 나타내는,IDirect3DTexture9 인터페이스의 포인터 주소.
-		*/
+			/*
+			pDevice - [in] IDirect3DDevice9 인터페이스의 포인터. 텍스처에 관련지을 수 있는 장치를 나타낸다.
+			pSrcFile - [in] 파일명을 지정하는 캐릭터 라인의 포인터. 컴파일러의 설정이 Unicode 를 요구하고 있는 경우, 데이터 타입 LPCTSTR 는 LPCWSTR 가 된다. 그 이외의 경우는, 이 캐릭터 라인의 데이터 타입은 LPCSTR 가 된다. 「주의」를 참조할것.
+			Width - [in] 폭 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
+			Height - [in] 높이 (픽셀 단위). 이 값이 0 또는 D3DX_DEFAULT 의 경우, 넓이는 파일로부터 취득된다.
+			MipLevels - [in] 요구되는 밉레벨의 수. 이 값이 0 또는 D3DX_DEFAULT 의 경우는, 완전한 밉맵 체인이 생성 된다.
+			Usage - [in] 0, D3DUSAGE_RENDERTARGET, 또는 D3DUSAGE_DYNAMIC. 이 플래그를 D3DUSAGE_RENDERTARGET 로 설정 하면, 그 표면은 렌더링 타겟으로서 사용되는 것을 나타낸다. 리소스는,IDirect3DDevice9::SetRenderTarget 메서드의 pNewRenderTarget 파라미터에 건네줄 수가 있다. D3DUSAGE_RENDERTARGET 또는 D3DUSAGE_DYNAMIC 를 지정하는 경우,Pool 를 D3DPOOL_DEFAULT 로 설정해, 애플리케이션은 IDirect3D9::CheckDeviceFormat 를 호출해, 장치가 이 처리를 지원 하고 있는 것을 확인할 필요가 있다. D3DUSAGE_DYNAMIC 는, 표면을 동적으로 처리할 필요가 있는 것을 나타낸다. 동적 텍스처의 사용법의 더 자세한 정보는, 「동적 텍스처의 사용법」을 참조할것.
+			Format - D3DFORMAT 열거형의 멤버. 텍스처에 대해서 요구된 픽셀 포맷을 기술한다. 돌려받는 텍스처의 포맷은,Format 로 지정한 포맷과 다른 경우가 있다. 애플리케이션은, 돌려주어진 텍스처의 포맷을 확인할 필요가 있다. Format 의 값이 D3DFMT_UNKNOWN 의 경우, 포맷은 파일로부터 취득된다.
+			Pool - [in] D3DPOOL 열거형의 멤버. 텍스처의 배치처가 되는 메모리 클래스를 기술한다.
+			Filter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_TRIANGLE | D3DX_FILTER_DITHER 를 지정하는 것으로 동일하다.
+			MipFilter - [in] 이미지를 필터링 하는 방법을 제어하는 1 개 혹은 복수의 D3DX_FILTER 의 편성. 이 파라미터에 D3DX_DEFAULT 를 지정하는 것은, D3DX_FILTER_BOX 를 지정하는 것으로 동일하다.
+			ColorKey - [in] 투명이 되는 D3DCOLOR 의 값. 컬러 키를 무효로 하는 경우는 0 을 지정한다. 소스 이미지의 포맷과는 관계없이, 이것은 항상 32 비트의 ARGB 컬러이다. 알파가 의미가 있고, 보통은 컬러 키를 불투명하게 하는 경우는 FF 를 지정한다. 따라서, 불투명한 흑의 경우, 값은 0xFF000000 가 된다.
+			pSrcInfo - [in, out] 소스 이미지 파일내의 데이터의 기술을 저장 하는 D3DXIMAGE_INFO 구조체의 포인터, 또는 NULL.
+			pPalette - [out] 저장 하는 256 색팔레트를 나타내는 PALETTEENTRY 구조체의 포인터, 또는 NULL.
+			ppTexture - [out] 생성 된 큐브 텍스처 개체를 나타내는,IDirect3DTexture9 인터페이스의 포인터 주소.
+			*/
 
 		if (FAILED(hr))
 			return 0;
 
 		textureRect.left = 0;
-		textureRect.right = textureRect.left + texInfo.Width;
+		//textureRect.right = textureRect.left + texInfo.Width;
+		textureRect.right = 50;
 		textureRect.top = 0;
-		textureRect.bottom = textureRect.top + texInfo.Height;
+		// textureRect.bottom = textureRect.top + texInfo.Height;
+		textureRect.bottom = 80;
 		// 출력 영역 지정 -> 원본 이미지 전체 출력
 
-		textureColor = D3DCOLOR_ARGB(255, 255/2, 255/2, 255/2);	// 알파채널 작동, 원본 그대로 출력(흰색)
+		textureColor = D3DCOLOR_ARGB(255, 255, 255, 255);	// 알파채널 작동, 원본 그대로 출력(흰색)
 	}
-
+	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
 	float frameTime = 0.0f;
@@ -180,8 +178,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			if (frameInterval <= frameTime)
 			{
 				frameTime = 0.0f;
-				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(0, 100, 100), 0.0f, 0);
-				// 가독성
+				dxDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(100, 100, 100), 0.0f, 0);
 				{	
 					// 특정 영역(scene)에 이미지 출력
 					dxDevice->BeginScene();	// 시작 / 필수!
@@ -203,15 +200,50 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						}
 						spriteDX->End();
 					}
+					/*
+					Device Lost 처리 -> 실제 게임내에서도 자주 만나게 됨(Update 맥락인듯)
+					Device 상태 확인(Update마다) -> Device 상태에 문제 존재할 경우
+					Device와 그 외 Device를 통해 생성된 모든 리소스를 복구함
+					=> 구조를 잘 알아두어야 함!
+					*/
+					hr = dxDevice->TestCooperativeLevel();	// 디바이스 레벨로 상태 확인(다이렉트엑스 기본제공 함수)
+					if (FAILED(hr))
+					{
+						// 상태에 문제 존재 시, 디바이스 + 디바이스를 통해 생성된 모든 리소스 복구
+						// 실패 상태 : 3가지 -> 각각 문제에 다른 처리가 필요함
+						if (D3DERR_DEVICELOST == hr)	// 현재 아무것도 할 수 x(하드웨어와 연결 끊어짐 등)
+							Sleep(100);	// 대기시간
+						else if (D3DERR_DEVICENOTRESET == hr)	// 망가진 상태 but 복구 가능한 상태 => 복구 진행함
+						{
+							// 기존에 만들어져 있던 것 reset
+							if (textureDX)
+							{
+								textureDX->Release();
+								textureDX = NULL;
+							}
+
+							// 새로 생성(복구)
+							direct3D = Direct3DCreate9(D3D_SDK_VERSION);
+							if (direct3D != NULL)	// 정상적으로 생성 됨
+							{
+								HRESULT hr = direct3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &d3dpp, &dxDevice);
+								if(SUCCEEDED(hr))
+									hr = D3DXCreateSprite(dxDevice, &spriteDX);
+								if(SUCCEEDED(hr))
+									hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
+										1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
+										&texInfo, NULL, &textureDX);
+								// 디바이스&스프라이트&텍스처 인터페이스 재 생성
+							}
+						}
+					}
 					dxDevice->EndScene();	// 끝 / 필수!
 				}
-
 				dxDevice->Present(NULL, NULL, NULL, NULL);
-			}
-		}
+			} // if문
+		}	// else 문
 	}
 
-	// 컴 인터페이스들 생성되있을 경우 삭제 작업 필요함
 	if (dxDevice)	
 	{
 		dxDevice->Release();
