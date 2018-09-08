@@ -9,4 +9,9 @@ Frame Animation
 - Sprite에서 left, top만 변형됨, 나머지는 고정!
 => 핵심내용, 좌표값 설정이 중요함
 
+- 프레임 당으로 계산되면 게임이 느려질때 같이 느려짐(거의 사용 x) -> 차라리 스킵함
+- 프레임이 아닌 시간에 기반해서 사용함(타임라인)
+
 +) 데이터 관리는 서버 or  singletone?
++) LTRB : LEFT TOP RIGHT BOTTOM
++) vector 찾아보기!

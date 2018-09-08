@@ -133,6 +133,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		{
 			gameTimer.Update();
 			float deltaTime = gameTimer.GetDeltaTimer();
+
+			testSprite->Update(deltaTime);
+
 			frameTime += deltaTime;
 
 			if (frameInterval <= frameTime)
