@@ -20,5 +20,9 @@ private:
 	D3DCOLOR _textureColor;
 	LPDIRECT3DDEVICE9 _dxDevice;
 	ID3DXSprite* _spriteDX;
+
+	std::wstring _fileName;
+	D3DXIMAGE_INFO _texInfo;	// 파일로부터 이미지의 너비와 높이를 얻음
+	// 멤버변수
 	// 클래스가 필요한 속성
 };

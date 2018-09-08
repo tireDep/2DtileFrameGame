@@ -1,0 +1,12 @@
+0908 요약
+오늘주제
+- Sprite Frame Animation
+
+ 수업
+- 자기의 이름과 같은 생성자와 해제자를 가지고 있음(construct, destructor)
+
+Frame Animation
+- Sprite에서 left, top만 변형됨, 나머지는 고정!
+=> 핵심내용, 좌표값 설정이 중요함
+
++) 데이터 관리는 서버 or  singletone?

@@ -109,40 +109,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		return 0;
 
 	// 이미지 로드
-	IDirect3DTexture9* textureDX;
-	RECT textureRect;
-	D3DCOLOR textureColor;
 	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";
 
 	// Sprite 객체 생성
 	Sprite* testSprite = new Sprite();
 	testSprite->Init(fileName,dxDevice,spriteDX);
-
-	/*
-	// Sprite.cpp로 이동됨
-	D3DXIMAGE_INFO texInfo;	// 파일로부터 이미지의 너비와 높이를 얻음
-	{
-		hr = D3DXGetImageInfoFromFile(fileName, &texInfo);
-		if (FAILED(hr))
-			return 0;
-		
-		// 이미지 데이터 로드
-		hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
-			1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
-			&texInfo, NULL, &textureDX);
-
-		if (FAILED(hr))
-			return 0;
-
-		textureRect.left = 0;
-		textureRect.right = textureRect.left + texInfo.Width;
-		textureRect.top = 0;
-		textureRect.bottom = textureRect.top + texInfo.Height;
-		// 출력 영역 지정 -> 원본 이미지 전체 출력
-
-		textureColor = D3DCOLOR_ARGB(255, 255, 255, 255);	// 알파채널 작동, 원본 그대로 출력(흰색)
-	}
-	*/
 	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -178,15 +149,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						{
 							// Sprite Render
 							testSprite->Render();
-
-							/*
-							// 이동함!
-							// 알파채널 사용함!
-							// 2D이미지 출력 공간 -> Texture 1장 출력
-							spriteDX->Draw(textureDX, &textureRect, NULL, NULL, textureColor);
-							// 그릴 텍스처 정보가 들어있는 인터페이스, 원본 이미지에서 그릴 부분, NULL(일단은) ,NULL(일단은) , 스프라이트의 색상&알파채널
-							// 알파채널 : 특정색상(투명값) 제외 하는 것 ->  한 색상 사용x ==> 알파채널이라는 설정으로 배경제외(투명값이외의 다른 값 사용함 의미함)
-							*/
 						}
 						spriteDX->End();
 					}
@@ -226,10 +188,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 									hr = D3DXCreateSprite(dxDevice, &spriteDX);
 								if (SUCCEEDED(hr))
 									testSprite->Reset();
-									/*hr = D3DXCreateTextureFromFileEx(dxDevice, fileName, texInfo.Width, texInfo.Height,
-										1, 0, D3DFMT_UNKNOWN, D3DPOOL_DEFAULT, D3DX_DEFAULT, D3DX_DEFAULT, D3DCOLOR_ARGB(255, 255, 255, 255),
-										&texInfo, NULL, &textureDX);*/
-								// 디바이스&스프라이트&텍스처 인터페이스 재 생성
 							}
 						}
 					}
@@ -250,16 +208,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		direct3D->Release();
 		direct3D = NULL;
 	}
-	if (testSprite != NULL)
+	if (NULL != testSprite)
 		delete testSprite;
-
-	/*if (textureDX)
-	{
-	textureDX->Release();
-	textureDX = NULL;
-	}*/
-	// 원래 textureDX도 해제를 했었어야 함
-	// 수정되는 코드 -> 텍스처 해제는 스프라이트가 파괴될 때 이루어짐
 
 	return 0;
 }
