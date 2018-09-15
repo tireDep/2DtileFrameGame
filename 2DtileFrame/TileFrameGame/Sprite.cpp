@@ -58,18 +58,18 @@ void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite
 		// left, top, width, height
 		{
 			Frame* frame = new Frame();
-			frame->Init(_spriteDX, _textureDX, 0, 0, 52, 72, 0.2f, D3DCOLOR_ARGB(255, 255, 255, 255));
-			// 왼, 위, 오, 아, 흐르는 시간!(스피드 조절), 색상설정
+			frame->Init(_spriteDX, _textureDX, 0, 0, 52, 72, 0.5f, D3DCOLOR_ARGB(100, 255, 255, 255),0.5f);
+			// 왼, 위, 오, 아, 흐르는 시간!(스피드 조절), 색상설정(투명도,rgb), 이미지 크기
 			_frameList.push_back(frame);
 		}
 		{
 			Frame* frame = new Frame();
-			frame->Init(_spriteDX, _textureDX, 52, 0, 52, 72, 0.9f, D3DCOLOR_ARGB(255, 255, 55, 55));
+			frame->Init(_spriteDX, _textureDX, 52, 0, 52, 72, 0.5f, D3DCOLOR_ARGB(155, 255, 255, 255),1.0f);
 			_frameList.push_back(frame);
 		}
 		{
 			Frame* frame = new Frame();
-			frame->Init(_spriteDX, _textureDX, 104, 0, 52, 72, 0.2f, D3DCOLOR_ARGB(255, 100, 255, 255));
+			frame->Init(_spriteDX, _textureDX, 104, 0, 52, 72, 0.5f, D3DCOLOR_ARGB(255, 250, 255, 255),3.0f);
 			_frameList.push_back(frame);
 		}
 		_frameIndex = 0;
