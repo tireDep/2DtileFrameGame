@@ -1,6 +1,10 @@
 #include "Sprite.h"
 #include "Frame.h"
-#include <reader.h>
+#include <d3dx9.h>
+
+#include <string.h>
+#include <fstream>	// 파일
+#include <reader.h>	// json 헤더
 
 Sprite::Sprite()
 {
@@ -57,7 +61,8 @@ void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite
 		//frame->Init(_spriteDX, _textureDX, 0, 0, 52, 72);
 		// 크기 : 52, 72
 		// left, top, width, height
-		{
+		
+		/*{
 			Frame* frame = new Frame();
 			frame->Init(_spriteDX, _textureDX, 0, 0, 52, 72, 0.5f, D3DCOLOR_ARGB(100, 255, 255, 255),0.5f);
 			// 왼, 위, 오, 아, 흐르는 시간!(스피드 조절), 색상설정(투명도,rgb), 이미지 크기
@@ -72,7 +77,54 @@ void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite
 			Frame* frame = new Frame();
 			frame->Init(_spriteDX, _textureDX, 104, 0, 52, 72, 0.5f, D3DCOLOR_ARGB(255, 250, 255, 255),3.0f);
 			_frameList.push_back(frame);
+		}*/
+
+		// 스크립트로 프레임 불러옴
+		std::string fileName = "Test.json";
+		std::ifstream infile(fileName);	// 파일 로딩
+
+		if (infile.is_open())	// 파일이 잘 열릴 경우
+		{
+			char recordString[1000];
+			while (false == infile.eof())	// 파일이 끝나지 않으면
+			{
+				infile.getline(recordString, 1000);	// maximum 1000까지 1줄을 읽음
+
+				// Parsing, Record(Token : 게임 최소 단위)
+				Json::Value root;
+				Json::Reader reader;
+				bool isSuccess = reader.parse(recordString, root);	// 파싱 끝!
+				// 보통 이런 식으로 파싱작업함!! -> 토큰별로 분리되서 root에 들어가 있음
+				
+				if (true == isSuccess)
+				{
+					// 파싱된 값을 적용함
+					// 과제!
+					// Init 나머지 부분 스크립트화, 다른 이미지 출력관련해서 해보기!
+					int x = root["x"].asInt();
+					int y = root["y"].asInt();
+					int width = root["width"].asInt();
+					int height = root["height"].asInt();
+					float frameInterval = root["frameInterval"].asDouble();
+
+					
+					Frame* frame = new Frame();
+					frame->Init(_spriteDX, _textureDX, x, y, width, height, frameInterval, D3DCOLOR_ARGB(255, 255, 255, 255), 0.5f);
+					// ID3DXSprite* 변수, IDirect3DTexture9* 변수, 왼, 위, 오, 아, 흐르는 시간!(스피드 조절), 색상설정(투명도,rgb), 이미지 크기
+					_frameList.push_back(frame);					
+				}
+
+			}
 		}
+
+		
+	else
+		{
+			// msg
+			exit(0);
+		}
+	
+
 		_frameIndex = 0;
 		_frameDuration = 0.0f;
 	}
