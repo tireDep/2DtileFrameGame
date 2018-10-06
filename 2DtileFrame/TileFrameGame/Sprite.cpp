@@ -107,9 +107,15 @@ void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite
 					int height = root["height"].asInt();
 					float frameInterval = root["frameInterval"].asDouble();
 
+					int alpha = root["alpha"].asInt();
+					int red = root["red"].asInt();
+					int green = root["green"].asInt();
+					int blue = root["blue"].asInt();
+					float scale = root["scale"].asDouble();
+
 					
 					Frame* frame = new Frame();
-					frame->Init(_spriteDX, _textureDX, x, y, width, height, frameInterval, D3DCOLOR_ARGB(255, 255, 255, 255), 0.5f);
+					frame->Init(_spriteDX, _textureDX, x, y, width, height, frameInterval, D3DCOLOR_ARGB(alpha, red, green, blue), scale);
 					// ID3DXSprite* 변수, IDirect3DTexture9* 변수, 왼, 위, 오, 아, 흐르는 시간!(스피드 조절), 색상설정(투명도,rgb), 이미지 크기
 					_frameList.push_back(frame);					
 				}
@@ -147,8 +153,11 @@ void Sprite::Render()
 {
 	// _spriteDX->Draw(_textureDX, &_textureRect, NULL, NULL, _textureColor);
 	// _frame->Render();
-	if(_frameIndex<_frameList.size())	// 범위내에 있을 때만 렌더링
+	if (_frameIndex < _frameList.size())	// 범위내에 있을 때만 렌더링
+	{
+		_frameList[_frameIndex]->SetPosition(_x, _y);
 		_frameList[_frameIndex]->Render();
+	}
 }
 
 void Sprite::Release()
@@ -171,4 +180,10 @@ void Sprite::Reset()
 	{
 		_frameList[i]->Reset();
 	}
+}
+
+void Sprite::SetPosition(float x, float y)	// 타일맵 함수, 위치
+{
+	_x = x;
+	_y = y;
 }

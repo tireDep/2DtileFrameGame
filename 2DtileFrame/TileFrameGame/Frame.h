@@ -18,6 +18,10 @@ private:
 
 	float _scale;
 
+	float _x;
+	float _y;	// 위치
+
+
 public:
 	Frame();
 	~Frame();
@@ -31,4 +35,6 @@ public:
 	{
 		return _frameInterval;	// 임시
 	}
+
+	void SetPosition(float x, float y);	// 타일맵 함수, 위치
 };

@@ -113,7 +113,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 	// Sprite 객체 생성
 	Sprite* testSprite = new Sprite();
+	//Sprite* testSprite2 = new Sprite();
 	testSprite->Init(fileName,dxDevice,spriteDX);
+	//testSprite2->Init(fileName, dxDevice, spriteDX);
 	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -135,6 +137,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			float deltaTime = gameTimer.GetDeltaTimer();
 
 			testSprite->Update(deltaTime);
+			//testSprite2->Update(deltaTime);
 
 			frameTime += deltaTime;
 
@@ -151,7 +154,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						spriteDX->Begin(D3DXSPRITE_ALPHABLEND);	
 						{
 							// Sprite Render
-							testSprite->Render();
+							// testSprite->Render();
+
+							// 타일 적용
+
+							float startX = 0.0f;
+							float startY = 0.0f;
+							float posX = startX;
+							float posY = startY;
+							int tileSize = 32;
+
+							for (int y = 0; y < 16; y++)
+							{
+								for (int x = 0; x < 16; x++)
+								{
+									testSprite->SetPosition(posX, posY);	// 위치 설정
+									testSprite->Render();	// 출력
+									
+									//testSprite2->SetPosition(posX, posY);	// 위치 설정
+									//testSprite2->Render();	// 출력
+
+									posX += tileSize;	// 위치 이동
+
+								}
+								posX = startX;
+								posY += tileSize;
+							}
+
 						}
 						spriteDX->End();
 					}

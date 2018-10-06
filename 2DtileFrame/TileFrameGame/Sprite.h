@@ -26,6 +26,8 @@ public:
 	void Release(); 
 	void Reset();
 
+	void SetPosition(float x, float y);	// 타일맵 함수, 위치
+
 private:
 	IDirect3DTexture9* _textureDX;
 	LPDIRECT3DDEVICE9 _dxDevice;
@@ -40,4 +42,7 @@ private:
 	int _frameIndex;
 	float _frameDuration;
 	// Frame* _frame;	// 프레임 변수
+
+	float _x;
+	float _y;	// 위치 변수
 };

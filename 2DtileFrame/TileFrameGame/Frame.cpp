@@ -38,7 +38,7 @@ void Frame::Render()
 	float rot = 0.0f;	// 회전 각도(회전 없음=0.0f)
 	
 	// D3DXVECTOR2 translate = D3DXVECTOR2(0.0f,0.0f);
-	D3DXVECTOR2 translate = D3DXVECTOR2(500.0f -_width * 0.5f, 500.0f -_height * 0.5f);	// 이동
+	D3DXVECTOR2 translate = D3DXVECTOR2(_x-_width * 0.5f, _y -_height * 0.5f);	// 이동
 	// 피벗 가운데 -> -_width*0.5f, -_height*0.5f
 	// default는 좌측상단
 	// 피벗을 가운데 => 좌표위치랑 피벗위치랑 같게 해주는 것 ==> +/-로 설정 가능
@@ -74,3 +74,9 @@ void Frame::Render()
 
 void Frame::Reset()
 {}
+
+void Frame::SetPosition(float x, float y)	// 타일맵 함수, 위치
+{
+	_x = x;
+	_y = y;
+}
