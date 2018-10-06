@@ -1,5 +1,6 @@
 #include "Sprite.h"
 #include "Frame.h"
+#include <reader.h>
 
 Sprite::Sprite()
 {
