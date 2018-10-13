@@ -112,10 +112,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";
 
 	// Sprite 객체 생성
-	Sprite* testSprite = new Sprite();
-	//Sprite* testSprite2 = new Sprite();
-	testSprite->Init(fileName,dxDevice,spriteDX);
-	//testSprite2->Init(fileName, dxDevice, spriteDX);
+	// 현재 : 1개 스프라이트 생성
+	// Sprite* testSprite = new Sprite();
+	// testSprite->Init(fileName,dxDevice,spriteDX);
+	
+	// 수정 예정 : 16*16개의 스프라이트 생성
+	Sprite *tileSprite[16][16];	// 여러 개 동시 저장 위해 배열 선언
+	for (int y = 0; y < 16; y++)
+	{
+		for (int x = 0; x < 16; x++)
+		{
+			tileSprite[y][x] = new Sprite();
+			LPCWSTR scriptName = L"Test.json";
+			if(0==(x%2))	// 짝수 줄일 경우 다른 스크립트 적용함!
+				scriptName = L"Test01.json";
+			tileSprite[y][x]->Init(fileName, scriptName, dxDevice, spriteDX);
+		}
+	}
 	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -136,8 +149,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			gameTimer.Update();
 			float deltaTime = gameTimer.GetDeltaTimer();
 
-			testSprite->Update(deltaTime);
-			//testSprite2->Update(deltaTime);
+			// testSprite->Update(deltaTime);
+			for (int y = 0; y < 16; y++)
+			{
+				for (int x = 0; x < 16; x++)
+				{
+					tileSprite[y][x]->Update(deltaTime);
+				}
+			}
+
 
 			frameTime += deltaTime;
 
@@ -162,20 +182,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 							float startY = 0.0f;
 							float posX = startX;
 							float posY = startY;
-							int tileSize = 32;
+							int tileSize = 20;
 
 							for (int y = 0; y < 16; y++)
 							{
 								for (int x = 0; x < 16; x++)
 								{
-									testSprite->SetPosition(posX, posY);	// 위치 설정
-									testSprite->Render();	// 출력
-									
-									//testSprite2->SetPosition(posX, posY);	// 위치 설정
-									//testSprite2->Render();	// 출력
+									// 현재 :  스프라이트 하나를 16*16개 출력
+									// testSprite->SetPosition(posX, posY);	// 위치 설정
+									// testSprite->Render();	// 출력
+
+									// 수정 예정 : 16*16개의 각자 다른 스프라이트 출력
+									tileSprite[y][x]->SetPosition(posX, posY);	// 위치 설정
+									tileSprite[y][x]->Render();	// 출력
 
 									posX += tileSize;	// 위치 이동
-
 								}
 								posX = startX;
 								posY += tileSize;
@@ -201,7 +222,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						{
 							// 기존에 만들어져 있던 것 reset
 							// 다른것은 이미 망가졌으므로 이거만 release, 다해도 상관없음
-							testSprite->Release();
+							// testSprite->Release();
+							for (int y = 0; y < 16; y++)
+							{
+								for (int x = 0; x < 16; x++)
+									tileSprite[y][x] ->Release();
+							}
 
 							/*
 							if (textureDX)
@@ -219,7 +245,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 								if(SUCCEEDED(hr))
 									hr = D3DXCreateSprite(dxDevice, &spriteDX);
 								if (SUCCEEDED(hr))
-									testSprite->Reset();
+								{
+									// testSprite->Reset();
+									for (int y = 0; y < 16; y++)
+									{
+										for (int x = 0; x < 16; x++)
+											tileSprite[y][x]->Reset();
+									}
+								}
 							}
 						}
 					}
@@ -228,7 +261,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 				dxDevice->Present(NULL, NULL, NULL, NULL);
 			} // if문
 		}	// else 문
-	}
+	}	// while 문
 
 	if (dxDevice)	
 	{
@@ -240,8 +273,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		direct3D->Release();
 		direct3D = NULL;
 	}
-	if (NULL != testSprite)
-		delete testSprite;
+	/*if (NULL != testSprite)
+		delete testSprite;*/
+
+	// 객체 파괴
+	for (int y = 0; y < 16; y++)
+	{
+		for (int x = 0; x < 16; x++)
+		{
+			if (NULL != tileSprite[y][x])
+				delete tileSprite[y][x];
+		}
+	}
 
 	return 0;
 }

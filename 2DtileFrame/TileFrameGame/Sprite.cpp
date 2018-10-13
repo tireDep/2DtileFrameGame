@@ -29,7 +29,7 @@ Sprite::~Sprite()
 	}
 }
 
-void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX)
+void Sprite::Init(std::wstring fileName, std::wstring scriptName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX)	// Init(fileName, scriptName, dxDevice, spriteDX);
 {
 	HRESULT hr;
 	_dxDevice = dxDevice;
@@ -80,8 +80,8 @@ void Sprite::Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite
 		}*/
 
 		// 스크립트로 프레임 불러옴
-		std::string fileName = "Test.json";
-		std::ifstream infile(fileName);	// 파일 로딩
+		// std::string fileName = "Test.json";
+		std::ifstream infile(scriptName);	// 파일 로딩
 
 		if (infile.is_open())	// 파일이 잘 열릴 경우
 		{

@@ -20,7 +20,7 @@ public:
 	Sprite();
 	~Sprite();
 
-	void Init(std::wstring fileName, LPDIRECT3DDEVICE9 dxDevice,ID3DXSprite* spriteDX);
+	void Init(std::wstring fileName, std::wstring scriptName, LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX);
 	void Update(float deltaTime);	// 일반적으로 Render 위에 Update 함수 생성됨
 	void Render();
 	void Release(); 
