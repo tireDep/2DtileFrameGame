@@ -22,11 +22,13 @@
     <ClCompile Include="Frame.cpp" />
     <ClCompile Include="GameTimer.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Map.cpp" />
     <ClCompile Include="Sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Frame.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="Map.h" />
     <ClInclude Include="Sprite.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

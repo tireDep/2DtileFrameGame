@@ -4,6 +4,7 @@
 #include <d3dx9.h>
 #include "GameTimer.h"
 #include "Sprite.h"	
+#include "Map.h"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -108,9 +109,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	if (FAILED(hr))
 		return 0;
 
-	// 이미지 로드
-	LPCWSTR fileName = L"../Resources/Images/bonus1_full.png";
+	int tileMapIndex[16][16];	// 타일맵 변수
+	int idx = 0;	// 순서 체크 변수
+	for (int y = 0; y < 16; y++)
+	{
+		for (int x = 0; x < 16; x++)
+		{
+			// tileMapIndex[y][x] = rand() % 4;	// 랜덤으로 0 ~ 3
+			tileMapIndex[y][x] = (idx++) % 4;	// 순서대로 0 ~ 3 저장
+		}
+	}	// 타일맵 정보 저장
 
+	LPCWSTR fileName = L"../Resources/Images/PathAndObjects.png";
+
+	/*
 	// Sprite 객체 생성
 	// 현재 : 1개 스프라이트 생성
 	// Sprite* testSprite = new Sprite();
@@ -118,17 +130,42 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 	
 	// 수정 예정 : 16*16개의 스프라이트 생성
 	Sprite *tileSprite[16][16];	// 여러 개 동시 저장 위해 배열 선언
+	LPCWSTR scriptName;	// 스크립트 생성
 	for (int y = 0; y < 16; y++)
 	{
 		for (int x = 0; x < 16; x++)
 		{
 			tileSprite[y][x] = new Sprite();
-			LPCWSTR scriptName = L"Test.json";
-			if(0==(x%2))	// 짝수 줄일 경우 다른 스크립트 적용함!
-				scriptName = L"Test01.json";
+			// LPCWSTR scriptName = L"Test.json";
+			// if(0==(y%2))	// 짝수 줄일 경우 다른 스크립트 적용함!
+			//	scriptName = L"Test01.json";
+			
+			int index = tileMapIndex[y][x];	// 타일맵! 이게 중요함!! -> 이거로 뭐가 찍히는지가 변함
+			switch (index)
+			{
+			case 0:
+				scriptName = L"playerLeft.json";
+				break;
+			case 1:
+				scriptName = L"playerRight.json";
+				break;
+			case 2:
+				scriptName = L"playerFront.json";
+				break;
+			case 3:
+				scriptName = L"playerBack.json";
+				break;
+			default:
+				break;
+			}
+
 			tileSprite[y][x]->Init(fileName, scriptName, dxDevice, spriteDX);
 		}
-	}
+	}*/
+
+	Map *map = new Map();
+	map->Init();
+	// 스프라이트 생성 이동
 	
 	float fps = 60.0f;
 	float frameInterval = 1.0f / fps;
@@ -149,14 +186,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			gameTimer.Update();
 			float deltaTime = gameTimer.GetDeltaTimer();
 
-			// testSprite->Update(deltaTime);
+			/* //testSprite->Update(deltaTime);
 			for (int y = 0; y < 16; y++)
 			{
 				for (int x = 0; x < 16; x++)
 				{
 					tileSprite[y][x]->Update(deltaTime);
 				}
-			}
+			}*/
+			map->Update(deltaTime);
 
 
 			frameTime += deltaTime;
@@ -172,7 +210,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 						// scene 작업 : 게임화면과 관련된 모든 작업 공간
 						// 반드시 beginscene ~ endscene 사이에 이루어져야함
 						spriteDX->Begin(D3DXSPRITE_ALPHABLEND);	
-						{
+						map->Render();
+						/*{
 							// Sprite Render
 							// testSprite->Render();
 
@@ -182,7 +221,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 							float startY = 0.0f;
 							float posX = startX;
 							float posY = startY;
-							int tileSize = 20;
+							int tileSize = 32;
 
 							for (int y = 0; y < 16; y++)
 							{
@@ -194,7 +233,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 
 									// 수정 예정 : 16*16개의 각자 다른 스프라이트 출력
 									tileSprite[y][x]->SetPosition(posX, posY);	// 위치 설정
-									tileSprite[y][x]->Render();	// 출력
+									tileSprite[y][x]->Render();	// 출력*
+
+									
 
 									posX += tileSize;	// 위치 이동
 								}
@@ -202,7 +243,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 								posY += tileSize;
 							}
 
-						}
+						}*/
 						spriteDX->End();
 					}
 					/*
@@ -223,11 +264,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 							// 기존에 만들어져 있던 것 reset
 							// 다른것은 이미 망가졌으므로 이거만 release, 다해도 상관없음
 							// testSprite->Release();
-							for (int y = 0; y < 16; y++)
+							/*for (int y = 0; y < 16; y++)
 							{
 								for (int x = 0; x < 16; x++)
 									tileSprite[y][x] ->Release();
-							}
+							}*/
+							map->Realease();
 
 							/*
 							if (textureDX)
@@ -246,12 +288,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 									hr = D3DXCreateSprite(dxDevice, &spriteDX);
 								if (SUCCEEDED(hr))
 								{
-									// testSprite->Reset();
+									/*/ testSprite->Reset();
 									for (int y = 0; y < 16; y++)
 									{
 										for (int x = 0; x < 16; x++)
 											tileSprite[y][x]->Reset();
-									}
+									}*/
+									map->Reset();
 								}
 							}
 						}
@@ -273,8 +316,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 		direct3D->Release();
 		direct3D = NULL;
 	}
-	/*if (NULL != testSprite)
-		delete testSprite;*/
+	/*/*if (NULL != testSprite)
+		delete testSprite;
 
 	// 객체 파괴
 	for (int y = 0; y < 16; y++)
@@ -284,7 +327,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, 
 			if (NULL != tileSprite[y][x])
 				delete tileSprite[y][x];
 		}
-	}
+	}*/
+	map->Deinit();	// 맵은 스프라이트 해제 이외에도 다른 기능이 있음
+	delete map;
 
 	return 0;
 }
