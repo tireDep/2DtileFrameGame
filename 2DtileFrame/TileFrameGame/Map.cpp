@@ -12,6 +12,26 @@ Map::~Map()
 
 void Map::Init(LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX)
 {
+	LPCWSTR fileName = L"../Resources/Images/PathAndObjects.png";
+	int srcX = 0;
+	int srcY = 0;
+	int tileSize = 32;
+
+	for (int y = 0; y < 16; y++)
+	{
+		for (int x = 0; x < 16; x++)
+		{
+			Sprite *sprite = new Sprite();
+			sprite->Init(fileName, srcX, srcY, tileSize, tileSize, 1.0, dxDevice, spriteDX);
+			_spriteList.push_back(sprite);
+			srcX += tileSize;
+		}
+		srcX = 0;
+		srcY += tileSize;
+	}
+	// 맵용 스프라이트 리스트 작업
+	// 타일 개수, 개별 타일 크기는 합의가 끝난 상태(팀 작업일 경우) => 32x32, 256개
+
 	int tileMapIndex[16][16];	// 타일맵 변수
 	int idx = 0;	// 순서 체크 변수
 
@@ -20,20 +40,19 @@ void Map::Init(LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX)
 		for (int x = 0; x < 16; x++)
 		{
 			// tileMapIndex[y][x] = rand() % 4;	// 랜덤으로 0 ~ 3
-			tileMapIndex[y][x] = (idx++) % 4;	// 순서대로 0 ~ 3 저장
+			tileMapIndex[y][x] = idx++; //0 ~ 255
 		}
 	}	// 타일맵 정보 저장
 
-	// Sprite 객체 생성
-	// 현재 : 1개 스프라이트 생성
-	LPCWSTR fileName = L"../Resources/Images/PathAndObjects.png";
 	LPCWSTR scriptName;	// 스크립트 생성
 
 	for (int y = 0; y < 16; y++)
 	{
 		for (int x = 0; x < 16; x++)
 		{
-			_tileSprite[y][x] = new Sprite();
+			int spriteIndex = tileMapIndex[y][x];
+			_tileSprite[y][x] = _spriteList[spriteIndex]; // 어딘가에 미리 다 생성해 둔 후 불러옴
+			/*_tileSprite[y][x] = new Sprite();
 
 			int index = tileMapIndex[y][x];	// 타일맵! 이게 중요함!! -> 이거로 뭐가 찍히는지가 변함
 			switch (index)
@@ -52,9 +71,11 @@ void Map::Init(LPDIRECT3DDEVICE9 dxDevice, ID3DXSprite* spriteDX)
 				break;
 				default:
 				break;
+				
 			}
 
 			_tileSprite[y][x]->Init(fileName, scriptName, dxDevice, spriteDX);
+			*/
 		}
 	}
 }
@@ -81,10 +102,10 @@ void Map::Render()
 	{
 		for (int x = 0; x < 16; x++)
 		{
-			_tileSprite[y][x]->SetPosition(posX, posY);	// 위치 설정
+			_tileSprite[y][x]->SetPosition(posX+30, posY+30);	// 위치 설정
 			_tileSprite[y][x]->Render();	// 출력*
 
-			posX += tileSize;	// 위치 이동
+			posX += tileSize;	// +2 : 오프셋 확인용 => 실제 사이즈 확인
 		}
 		posX = startX;
 		posY += tileSize;
